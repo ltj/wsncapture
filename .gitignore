@@ -1,0 +1,4 @@
+*.pyc
+log/
+*[Tt]est*
+config.py
