@@ -26,6 +26,7 @@ def capture(ser, log):
         time.sleep(1)
         
         # Replay loop
+        # TO-DO: clean up this loop
         repbuf = []
         prevsec = 0
         while True:
@@ -51,8 +52,8 @@ def capture(ser, log):
                     repbuf = [] # clear buffer
                 if line[0:4] == 'DF E': # end of replay
                     break
-    
-    log.flush()
+    # DEBUG
+    # log.flush()
         
     # Recording loop
     print 'Recording new packets...'
@@ -83,20 +84,21 @@ def capture(ser, log):
         time.sleep(0.01)
     
     ser.close()
-    print("wsncap done.")
+    print("wsncap done :)")
+    sys.exit(0)
 
             
 if __name__ == "__main__":
     print("Starting wsncap...")
 
-    print("Initializing logger.")
+    print("Initializing logger...")
     try:
         log = logger.Logger(log_path)
     except IOError, e:
         sys.stderr.write("Logger: %s\n" % e)
         sys.exit(1)
 
-    print("Starting serial bridge.")
+    print("Starting serial...")
     ser = serial.Serial()
     ser.port = serial_port
     ser.baudrate = serial_baudrate

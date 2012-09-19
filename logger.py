@@ -5,6 +5,7 @@ from config import log_zulu
 from packet import Packet
 
 class Logger:
+    # TO-DO: handle exceptions gracefully
     """Logs to and manages pecket log files"""
     
     def __init__(self, path, suffix='-wsnhub', markerfile='marker_file'):

@@ -2,6 +2,7 @@ import struct
 from config import nodes
 
 class Packet:
+    # TODO: documentation and make all methods static. Rename to "decoder"
 
     @staticmethod
     def is_ok_packet(packet_string):

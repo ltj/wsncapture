@@ -23,6 +23,7 @@ class ToStdout:
             
 
 class ToCosm:
+    # TO-DO: add datapoints from logfiles
     """update Cosm datastreams"""
     
     def __init__(self):
