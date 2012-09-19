@@ -26,20 +26,33 @@ def capture(ser, log):
         time.sleep(1)
         
         # Replay loop
-        prevsec = secs
+        repbuf = []
+        prevsec = 0
         while True:
             if ser.inWaiting() > 0:
                 line = ser.readline()
-                if line[0] == 'R':
-                    (sec, ok) = decoder.getreplay(line)
-                    offset = sec - prevsec
-                    logtime = logtime + timedelta(seconds=offset)
-                    log.append(ok, logtime)
-                    prevsec = sec   
+                if line[0] == 'R': # replay packet
+                    repdata = decoder.getreplay(line)
+                    repbuf.append(repdata)   
                     if use_stdout:
-                        print ok ,
-                if line[0:4] == 'DF E':
+                        print repdata[1] ,
+                if line[0:4] == 'DF R': # replay marker
+                    (page, seq, psec) = decoder.getreplaymarker(line)
+                    if psec < prevsec:
+                        prevsec = psec
+                        psec = 0
+                    else:
+                        prevsec = psec
+                    for (rpsec, rok) in repbuf:
+                        offset = rpsec - psec
+                        logtime = logtime + timedelta(seconds=offset)
+                        log.append(rok, logtime)
+                        psec = rpsec
+                    repbuf = [] # clear buffer
+                if line[0:4] == 'DF E': # end of replay
                     break
+    
+    log.flush()
         
     # Recording loop
     print 'Recording new packets...'

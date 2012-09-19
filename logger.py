@@ -50,6 +50,19 @@ class Logger:
                     self.buffer = []
             except IOError:
                 pass
+                
+    def flush(self):
+        """writes buffer immediately"""
+        try:
+            fh = open(self.current_file, 'a')
+            try:
+                for line in self.buffer:
+                    fh.write(line)
+            finally:
+                fh.close()
+                self.buffer = []
+        except IOError:
+            pass
         
     def _update_file(self):
         """Rolls over logfile if we entered a new day"""

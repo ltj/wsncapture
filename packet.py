@@ -22,10 +22,17 @@ class Packet:
         
     def getreplay(cls, repline):
         parts = repline.split(' ')
-        offset = parts[2]
+        secs = parts[2]
         sep = ' '
         ok = 'OK ' + sep.join(parts[3:])
-        return (int(sec), ok) 
+        return (int(secs), ok)
+        
+    def getreplaymarker(cls, repline):
+        parts = repline.split(' ')
+        page = parts[2]
+        seq = parts[3]
+        secs = parts[4]
+        return (page, seq, int(secs)) 
 
     def _byte_encode_ok_packet(cls, packet_string):
         parts = packet_string.split(' ')
