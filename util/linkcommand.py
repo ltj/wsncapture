@@ -18,13 +18,17 @@ time.sleep(2)
 ser.write(command + '\r\n')
 time.sleep(1)
 
+buf = []
+
 while True:
     if ser.inWaiting():
         line = ser.readline()
-        if line[0:4] == 'DF R' or line[0] == 'R':
-            print line ,
+        buf.append(line)
         if line[0:4] == 'DF E':
-            print line ,
             break
-
+    else:
+        break
+            
 ser.close()
+for l in buf:
+    print l ,

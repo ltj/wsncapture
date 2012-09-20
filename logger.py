@@ -2,7 +2,7 @@ import os.path
 import cPickle
 from datetime import date, datetime
 from config import log_zulu
-from packet import Packet
+from decoder import Decoder
 
 class Logger:
     # TO-DO: handle exceptions gracefully
@@ -36,9 +36,9 @@ class Logger:
         else:
             timestamp = now.isoformat()
         
-        if Packet.is_ok_packet(entry):
+        if Decoder.is_ok_packet(entry):
             self.buffer.append(timestamp + " " + entry)
-        elif Packet.is_dfs_packet(entry):
+        elif Decoder.is_dfs_packet(entry):
             self._update_file()
             try:
                 fh = open(self.current_file, 'a')
@@ -51,6 +51,10 @@ class Logger:
                     self.buffer = []
             except IOError:
                 pass
+        elif Decoder.is_dfr_packet(entry):
+            self._update_file()
+            self._save_marker(now, entry)
+            self.flush()
                 
     def flush(self):
         """writes buffer immediately"""

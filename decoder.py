@@ -1,8 +1,12 @@
 import struct
 from config import nodes
 
-class Packet:
-    # TODO: documentation and make all methods static. Rename to "decoder"
+class Decoder:
+    ''' JeeLink packet and message decoder
+     
+    Various methods to manage the JeeLink serial ouput.
+    
+    '''
 
     @staticmethod
     def is_ok_packet(packet_string):
@@ -12,7 +16,12 @@ class Packet:
     def is_dfs_packet(packet_string):
         return packet_string.startswith('DF S')
         
-    def getdfs(cls, dfsline):
+    @staticmethod
+    def is_dfr_packet(packet_string):
+        return packet_string.startswith('DF R')
+        
+    @staticmethod
+    def getdfs(dfsline):
         parts = dfsline.split(' ')
         if len(parts) == 5:
             page = parts[2]
@@ -20,22 +29,25 @@ class Packet:
             time = parts[4]
         replay_cmd = (page + 'r')
         return (page, seq, time, replay_cmd)
-        
-    def getreplay(cls, repline):
+    
+    @staticmethod
+    def getreplay(repline):
         parts = repline.split(' ')
         secs = parts[2]
         sep = ' '
         ok = 'OK ' + sep.join(parts[3:])
         return (int(secs), ok)
         
-    def getreplaymarker(cls, repline):
+    @staticmethod
+    def getreplaymarker(repline):
         parts = repline.split(' ')
         page = parts[2]
         seq = parts[3]
         secs = parts[4]
         return (page, seq, int(secs)) 
 
-    def _byte_encode_ok_packet(cls, packet_string):
+    @staticmethod
+    def _byte_encode_ok_packet(packet_string):
         parts = packet_string.split(' ')
         node_id = parts[1]
         packed = ''
@@ -45,7 +57,8 @@ class Packet:
         
         return (node_id, packed)
     
-    def _byte_encode_replay_packet(cls, packet_string):
+    @staticmethod
+    def _byte_encode_replay_packet(packet_string):
         parts = packet_string.split(' ')
         node_id = parts[3]
         packed = ''
@@ -55,17 +68,19 @@ class Packet:
         
         return (node_id, packed)
     
-    def _unpack_packet_bytes(cls, format, packed_string):
+    @staticmethod
+    def _unpack_packet_bytes(format, packed_string):
         return struct.unpack(format, packed_string)
-        
-    def decode(self, packet):
+    
+    @staticmethod
+    def decode(packet):
         """decode packet bytes to individual readings"""
-        (node_id, decode) = self._byte_encode_ok_packet(packet)
+        (node_id, decode) = Decoder._byte_encode_ok_packet(packet)
         data = None
         try:
-            data = self._unpack_packet_bytes(nodes[node_id]['format'], decode)
+            data = Decoder._unpack_packet_bytes(nodes[node_id]['format'], decode)
         except KeyError:
-            pass # discard unknown id's
+            pass # discard unknown id's TO-DO: log on exports?
         except struct.error:
             pass # TODO: log bad format in config
 

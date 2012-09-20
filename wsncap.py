@@ -1,16 +1,14 @@
 import sys
 import serial
-import packet
 import logger
 import output
 import time
+from decoder import Decoder
 from datetime import datetime, timedelta
 from config import (serial_port, serial_baudrate, serial_timeout, log_path,
                    use_log, use_stdout, use_cosm)
 
 def capture(ser, log):
-    
-    decoder = packet.Packet()
     
     if use_stdout:
         out_stdout = output.ToStdout()
@@ -21,7 +19,7 @@ def capture(ser, log):
     if log.markerfile_present():
         print 'Previous marker found. Replaying...'
         (logtime, marker) = log.get_marker()
-        (page, seq, secs, replay_cmd) = decoder.getdfs(marker)
+        (page, seq, secs, replay_cmd) = Decoder.getdfs(marker)
         ser.write(replay_cmd)
         time.sleep(1)
         
@@ -33,12 +31,12 @@ def capture(ser, log):
             if ser.inWaiting() > 0:
                 line = ser.readline()
                 if line[0] == 'R': # replay packet
-                    repdata = decoder.getreplay(line)
+                    repdata = Decoder.getreplay(line)
                     repbuf.append(repdata)   
                     if use_stdout:
                         print repdata[1] ,
                 if line[0:4] == 'DF R': # replay marker
-                    (page, seq, psec) = decoder.getreplaymarker(line)
+                    (page, seq, psec) = Decoder.getreplaymarker(line)
                     if psec < prevsec:
                         prevsec = psec
                         psec = 0
@@ -50,6 +48,7 @@ def capture(ser, log):
                         log.append(rok, logtime)
                         psec = rpsec
                     repbuf = [] # clear buffer
+                    log.append(line)
                 if line[0:4] == 'DF E': # end of replay
                     break
     # DEBUG
@@ -61,15 +60,15 @@ def capture(ser, log):
         try:
             if ser.inWaiting() > 0:
                 line = ser.readline()
-                if decoder.is_ok_packet(line):
-                    (node_id, data) = decoder.decode(line)
+                if Decoder.is_ok_packet(line):
+                    (node_id, data) = Decoder.decode(line)
                     if use_log:
                         log.append(line)
                     if use_stdout:
                         out_stdout.send(node_id, data)
                     if use_cosm:
                         out_cosm.send(node_id, data)
-                elif decoder.is_dfs_packet(line):
+                elif Decoder.is_dfs_packet(line):
                     log.append(line)
                     break
         except serial.SerialException, e:
