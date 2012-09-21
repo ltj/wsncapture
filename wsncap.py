@@ -48,7 +48,7 @@ def capture(ser, log):
                         log.append(rok, logtime)
                         psec = rpsec
                     repbuf = [] # clear buffer
-                    log.append(line)
+                    log.append(line, logtime)
                 if line[0:4] == 'DF E': # end of replay
                     break
     # DEBUG
