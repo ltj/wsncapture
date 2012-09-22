@@ -9,17 +9,21 @@ class Decoder:
     '''
 
     @staticmethod
-    def is_ok_packet(packet_string):
-        return packet_string.startswith('OK')
+    def is_ok_line(line):
+        return line.startswith('OK')
         
     @staticmethod
-    def is_dfs_packet(packet_string):
-        return packet_string.startswith('DF S')
+    def is_dfs_line(line):
+        return line.startswith('DF S')
         
     @staticmethod
-    def is_dfr_packet(packet_string):
-        return packet_string.startswith('DF R')
+    def is_dfr_line(line):
+        return line.startswith('DF R')
         
+    @staticmethod
+    def is_dfe_line(line):
+        return line.startswith('DF E')
+            
     @staticmethod
     def getdfs(dfsline):
         parts = dfsline.split(' ')

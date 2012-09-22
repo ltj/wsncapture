@@ -1,18 +1,17 @@
 import os.path
 import cPickle
+import logging
 from datetime import date, datetime
-from config import log_zulu
-from decoder import Decoder
+from config import log_zulu, log_path
 
-class Logger:
-    # TO-DO: handle exceptions gracefully
+class CapLogger:
     """Logs to and manages pecket log files"""
     
-    def __init__(self, path, suffix='-wsnhub', markerfile='marker_file'):
-        if path.endswith('/'):
-            self.path = path
+    def __init__(self, suffix='-capture', markerfile='marker_file'):
+        if log_path.endswith('/'):
+            self.path = log_path
         else:
-            self.path = path + '/'
+            self.path = log_path + '/'
         self.suffix = suffix
         self.markerfile = markerfile
         self.buffer = []
@@ -36,23 +35,12 @@ class Logger:
         else:
             timestamp = now.isoformat()
         
-        if Decoder.is_ok_packet(entry):
+        if entry[0:2] == 'OK':
             self.buffer.append(timestamp + " " + entry)
-        elif Decoder.is_dfs_packet(entry):
-            self._update_file()
-            try:
-                fh = open(self.current_file, 'a')
-                try:
-                    for line in self.buffer[:-1]: # discard the last entry
-                        fh.write(line)
-                    self._save_marker(now, entry)
-                finally:
-                    fh.close()
-                    self.buffer = []
-            except IOError:
-                pass
-        elif Decoder.is_dfr_packet(entry):
-            self._update_file()
+        elif entry[0:2] == 'DF':
+            if entry[3] == 'S':
+                self.buffer.pop()
+            self.buffer.append(timestamp + " " + entry)
             self._save_marker(now, entry)
             self.flush()
                 
@@ -68,12 +56,6 @@ class Logger:
                 self.buffer = []
         except IOError:
             pass
-        
-    def _update_file(self):
-        """Rolls over logfile if we entered a new day"""
-        if date.today() > self.date:
-            self.date = date.today()
-            self.current_file = self.path + self.date.strftime('%Y%m%d') + self.suffix
 
     def _save_marker(self, timestamp, marker):
         """saves the df storage marker and timestamp to file"""
