@@ -5,7 +5,7 @@ from datetime import date, datetime
 from config import log_zulu, log_path
 
 class CapLogger:
-    """Logs to and manages pecket log files"""
+    """Logs to and manages packet log files"""
     
     def __init__(self, suffix='-capture', markerfile='marker_file'):
         if log_path.endswith('/'):
@@ -75,7 +75,7 @@ class CapLogger:
             inm.close()
             return (logtime, marker)
         except IOError as e:
-            print "Marker file IO error: {0}".format(e.strerror)
+            logging.error('Marker file IO error: {0}', e.strerror)
             return None
             
     def markerfile_present(self):

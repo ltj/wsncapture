@@ -1,12 +1,15 @@
 import serial
 import sys
 import time
+import Queue
 
 ser = serial.Serial()
 ser.port = '/dev/tty.usbserial-AH019YW9'
 ser.baudrate = 57600
 ser.timeout = 1
 ser.dsrdtr = False
+
+q = Queue.Queue()
 
 command = sys.argv[1]
 print "Command: {0}".format(command)
@@ -16,19 +19,22 @@ ser.open()
 time.sleep(2)
 
 ser.write(command + '\r\n')
-time.sleep(1)
+#time.sleep(2)
 
-buf = []
+#buf = []
 
 while True:
     if ser.inWaiting():
-        line = ser.readline()
-        buf.append(line)
-        if line[0:4] == 'DF E':
+        data = ser.readline()
+        q.put_nowait(data)
+        if data[0:4] == ('DF E'):
             break
-    else:
-        break
+        
+
             
 ser.close()
-for l in buf:
-    print l ,
+
+while not q.empty():
+    print q.get_nowait() ,
+#for l in buf:
+#    print l ,

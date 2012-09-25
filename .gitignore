@@ -2,3 +2,5 @@
 log/
 *[Tt]est*
 config.py
+test*
+.DS_Store
