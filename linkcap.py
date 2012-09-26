@@ -16,6 +16,7 @@ def capture(ser, log):
         logging.info('previous marker found. replaying')
         (logtime, marker) = log.get_marker()
         (page, seq, secs, replay_cmd) = Decoder.getdfs(marker)
+        logging.debug("got replay cmd: " + replay_cmd)
         ser.write(replay_cmd)
         
         # replay loop
@@ -46,7 +47,7 @@ def capture(ser, log):
                 else:
                     offset = secs - prevsecs
                 logtime = logtime + timedelta(seconds=offset)
-                log.append(logtime, packet)
+                log.append(packet, logtime)
                 prevsecs = secs
             if line[0:4] == 'DF R': # replay marker
                 log.append(line, logtime)
@@ -103,7 +104,7 @@ if __name__ == "__main__":
     ser.timeout = serial_timeout
     try:
         ser.open()
-        time.sleep(2)
+        time.sleep(3)
     except serial.SerialException, e:
        logging.error("Could not open serial %s: %s\n", ser.portstr, e)
        sys.exit(1)

@@ -31,7 +31,7 @@ class Decoder:
             page = parts[2]
             seq = parts[3]
             time = parts[4]
-        replay_cmd = (page + 'r')
+        replay_cmd = ('p' + page)
         return (page, seq, time, replay_cmd)
     
     @staticmethod

@@ -37,9 +37,11 @@ class CapLogger:
         
         if entry[0:2] == 'OK':
             self.buffer.append(timestamp + " " + entry)
-        elif entry[0:2] == 'DF':
-            if entry[3] == 'S':
-                self.buffer.pop()
+        elif entry[0:4] == 'DF R':
+            self.buffer.append(timestamp + " " + entry)
+            self.flush()
+        elif entry[0:4] == 'DF S':
+            self.buffer.pop()
             self.buffer.append(timestamp + " " + entry)
             self._save_marker(now, entry)
             self.flush()
