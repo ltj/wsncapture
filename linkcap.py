@@ -28,10 +28,10 @@ def capture(ser, log):
                         readbuf.append(data)
                     if data[0:4] == 'DF E': # end of replay
                         break
-            except serial.SerialException, e:
+            except serial.SerialException as e:
                 logging.error("Serial bridge %s: %s\n", ser.portstr, e)
                 sys.exit(1)
-            except IOError, e:
+            except IOError as e:
                 logging.error("Logger: %s\n", e)
                 sys.exit(1)
         logging.info('replay ended. writing to log')
@@ -64,10 +64,10 @@ def capture(ser, log):
                 elif line[0:4] == 'DF S': # store marker
                     log.append(line)
                     break
-        except serial.SerialException, e:
+        except serial.SerialException as e:
             logging.error("Serial bridge %s: %s\n", ser.portstr, e)
             sys.exit(1)
-        except IOError, e:
+        except IOError as e:
             logging.error("Logger: %s\n", e)
             sys.exit(1)
         except (KeyboardInterrupt, SystemExit):

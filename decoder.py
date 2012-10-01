@@ -79,7 +79,11 @@ class Decoder:
     @staticmethod
     def decode(packet):
         """decode packet bytes to individual readings"""
-        (node_id, decode) = Decoder._byte_encode_ok_packet(packet)
+        node_id = None
+        try:
+            (node_id, decode) = Decoder._byte_encode_ok_packet(packet)
+        except:
+            pass
         data = None
         try:
             data = Decoder._unpack_packet_bytes(nodes[node_id]['format'], decode)

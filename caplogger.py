@@ -39,6 +39,7 @@ class CapLogger:
             self.buffer.append(timestamp + " " + entry)
         elif entry[0:4] == 'DF R':
             self.buffer.append(timestamp + " " + entry)
+            self._save_marker(now, entry)
             self.flush()
         elif entry[0:4] == 'DF S':
             self.buffer.pop()
@@ -50,14 +51,13 @@ class CapLogger:
         """writes buffer immediately"""
         try:
             fh = open(self.current_file, 'a')
-            try:
-                for line in self.buffer:
-                    fh.write(line)
-            finally:
-                fh.close()
-                self.buffer = []
+            for line in self.buffer:
+                fh.write(line)
+            fh.close()
+            self.buffer = []
         except IOError:
-            pass
+            logging.error('Flush issue')
+            raise
 
     def _save_marker(self, timestamp, marker):
         """saves the df storage marker and timestamp to file"""
@@ -67,7 +67,8 @@ class CapLogger:
             cPickle.dump(data, out)
             out.close()
         except IOError:
-            pass
+            logging.error('Save marker error.')
+            raise
             
     def get_marker(self):
         """retrieves the last saved marker"""
